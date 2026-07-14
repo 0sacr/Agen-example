@@ -1,0 +1,156 @@
+[
+  {
+    "year": 1895,
+    "title": "电影诞生",
+    "description": "卢米埃尔兄弟在巴黎Grand Café首次公开放映《工厂大门》《火车进站》等短片，标志着电影作为一门新艺术的诞生。",
+    "era": "pioneer",
+    "sound": "silent"
+  },
+  {
+    "year": 1902,
+    "title": "《月球旅行记》",
+    "description": "乔治·梅里爱拍摄了世界上第一部科幻片《月球旅行记》，开创了特殊效果和叙事电影的先河。",
+    "era": "pioneer",
+    "sound": "silent"
+  },
+  {
+    "year": 1915,
+    "title": "《一个国家的诞生》",
+    "description": "D·W·格里菲斯执导的史诗巨作，确立了长片叙事的基本语法，包括特写、交叉剪辑和平行蒙太奇。",
+    "era": "pioneer",
+    "sound": "silent"
+  },
+  {
+    "year": 1927,
+    "title": "有声电影元年",
+    "description": "华纳兄弟发行《爵士歌手》(The Jazz Singer)，虽然大部分仍为默片，但其中包含的同步对白和歌曲标志着有声电影时代的开启。",
+    "era": "golden-age",
+    "sound": "jazz"
+  },
+  {
+    "year": 1931,
+    "title": "《城市之光》",
+    "description": "卓别林在有声片时代坚持拍摄默片，《城市之光》被广泛认为是他最伟大的作品之一，证明了默片艺术的永恒魅力。",
+    "era": "golden-age",
+    "sound": "jazz"
+  },
+  {
+    "year": 1939,
+    "title": "好莱坞黄金时代",
+    "description": "《乱世佳人》和《绿野仙踪》同年上映，彩色电影技术臻于成熟，好莱坞制片厂制度达到顶峰，这一年被称为'好莱坞最伟大的一年'。",
+    "era": "golden-age",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1941,
+    "title": "《公民凯恩》",
+    "description": "奥逊·威尔斯自编自导自演的《公民凯恩》上映，其深焦摄影、非线性叙事和复杂的闪回结构革新了电影语言，被AFI评为影史最伟大电影。",
+    "era": "golden-age",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1954,
+    "title": "《后窗》",
+    "description": "希区柯克的《后窗》上映，通过受限视角构建悬念，是'纯粹电影'理论的完美实践，探讨了观看与被观看的伦理。",
+    "era": "golden-age",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1960,
+    "title": "法国新浪潮",
+    "description": "戈达尔的《精疲力尽》和特吕弗的《四百击》掀起法国新浪潮运动，跳切、手持摄影、即兴对白等手法颠覆了传统电影语法。",
+    "era": "new-wave",
+    "sound": "jazz"
+  },
+  {
+    "year": 1968,
+    "title": "《2001太空漫游》",
+    "description": "库布里克的科幻杰作，以其惊人的视觉效果、哲学深度和经典配乐（理查·施特劳斯《查拉图斯特拉如是说》）重新定义了科幻电影。",
+    "era": "new-wave",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1972,
+    "title": "《教父》",
+    "description": "科波拉执导的《教父》上映，将黑帮片提升到莎士比亚悲剧的高度，马龙·白兰度和阿尔·帕西诺的表演成为表演教科书的范本。",
+    "era": "new-hollywood",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1975,
+    "title": "《大白鲨》",
+    "description": "斯皮尔伯格的《大白鲨》开创了'暑期大片'(Summer Blockbuster)模式，约翰·威廉姆斯的标志性配乐证明了音乐对电影叙事的重要性。",
+    "era": "new-hollywood",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1977,
+    "title": "新好莱坞·星球大战",
+    "description": "乔治·卢卡斯的《星球大战》上映，彻底改变了电影工业：工业光魔(ILM)的特效革命、THX音效标准、以及衍生产品商业模式至今影响深远。",
+    "era": "new-hollywood",
+    "sound": "scifi"
+  },
+  {
+    "year": 1982,
+    "title": "《银翼杀手》",
+    "description": "雷德利·斯科特的赛博朋克经典，其反乌托邦视觉美学影响了此后数十年的科幻电影和动漫，但上映时票房惨败，成为影史最大的'cult逆袭'之一。",
+    "era": "new-hollywood",
+    "sound": "scifi"
+  },
+  {
+    "year": 1993,
+    "title": "《侏罗纪公园》",
+    "description": "斯皮尔伯格将CGI恐龙搬上银幕，标志着数字特效时代的真正来临。片中的霸王龙追逐场景至今仍是视效制作的黄金标准。",
+    "era": "digital",
+    "sound": "digital"
+  },
+  {
+    "year": 1994,
+    "title": "《肖申克的救赎》",
+    "description": "弗兰克·德拉邦特改编自斯蒂芬·金小说的监狱题材杰作，上映时票房平平，但通过录像带和电视重播成为IMDb长期排名第一的'人民选择'电影。",
+    "era": "digital",
+    "sound": "orchestra"
+  },
+  {
+    "year": 1999,
+    "title": "数字革命·《黑客帝国》",
+    "description": "沃卓斯基姐妹的《黑客帝国》上映，'子弹时间'(Bullet Time)特效技术震惊世界，同时将哲学思考（柏拉图洞穴喻、笛卡尔怀疑论）注入商业大片。",
+    "era": "digital",
+    "sound": "digital"
+  },
+  {
+    "year": 2001,
+    "title": "《千与千寻》",
+    "description": "宫崎骏的《千与千寻》成为日本影史票房冠军，并获得奥斯卡最佳动画长片，证明了手绘动画在世界舞台上的持久生命力。",
+    "era": "digital",
+    "sound": "orchestra"
+  },
+  {
+    "year": 2008,
+    "title": "漫威宇宙开启",
+    "description": "《钢铁侠》上映，漫威电影宇宙(MCU)正式开启，'互相关联的系列电影'模式在接下来的十多年里主导了全球票房。",
+    "era": "digital",
+    "sound": "digital"
+  },
+  {
+    "year": 2010,
+    "title": "《盗梦空间》",
+    "description": "诺兰的梦境劫盗题材电影，其多层嵌套叙事和旋转走廊实拍场景成为'烧脑电影'的代名词，模糊了商业片与艺术片的边界。",
+    "era": "digital",
+    "sound": "digital"
+  },
+  {
+    "year": 2019,
+    "title": "《寄生虫》",
+    "description": "奉俊昊的黑色喜剧成为首部获得奥斯卡最佳影片的非英语电影，其精准的阶级隐喻和空间叙事（半地下室→豪宅→防空洞）令全球观众震撼。",
+    "era": "digital",
+    "sound": "digital"
+  },
+  {
+    "year": 2024,
+    "title": "AI 电影时代",
+    "description": "AI生成视频技术（Sora等）开始影响电影制作流程，引发了关于创作本质的深刻讨论：当AI可以生成影像时，人类导演的价值在哪里？",
+    "era": "ai-era",
+    "sound": "ai"
+  }
+]
