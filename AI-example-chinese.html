@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude — 以水墨之意，行智能之实</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== CSS Variables ===== */
+    :root {
+      /* 宣纸 · 墨 · 朱砂 · 青瓷 */
+      --paper: #f7f3eb;
+      --card: #fefdfa;
+      --card-hover: #faf7f0;
+      --ink: #1c1c1c;
+      --ink-light: rgba(28, 28, 28, 0.55);
+      --ink-faint: rgba(28, 28, 28, 0.20);
+      --ink-wash: rgba(28, 28, 28, 0.04);
+      --cinnabar: #c44d34;
+      --cinnabar-dark: #a03a25;
+      --cinnabar-glow: rgba(196, 77, 52, 0.10);
+      --celadon: #8aaa9a;
+      --celadon-dark: #6b8f7e;
+      --border: rgba(0, 0, 0, 0.06);
+      --divider: rgba(0, 0, 0, 0.04);
+
+      --radius: 2px;
+      --ease-ink: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-slow: cubic-bezier(0.3, 0.05, 0.2, 1);
+
+      --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'Songti SC', 'SimSun', serif;
+      --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', -apple-system, sans-serif;
+      --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+    }
+
+    /* ===== Reset ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ===== 宣纸纹理 ===== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ===== App Container ===== */
+    #app { min-height: 100vh; }
+
+    /* ===== Section Base ===== */
+    .section {
+      padding: 140px 48px;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+      .section { padding: 80px 24px; }
+    }
+
+    /* ===== Fade-Up ===== */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.9s var(--ease-ink), transform 0.9s var(--ease-ink);
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== 印章 SVG 组件 ===== */
+    .seal {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .seal-sm { width: 32px; height: 32px; }
+
+    /* ===== 竹节分割线 ===== */
+    .bamboo-line {
+      width: 100%;
+      height: 1px;
+      background: repeating-linear-gradient(
+        to right,
+        var(--ink-faint) 0px,
+        var(--ink-faint) 4px,
+        transparent 4px,
+        transparent 10px
+      );
+      position: relative;
+    }
+    .bamboo-line::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cinnabar);
+    }
+
+    /* ===== 区块标题 ===== */
+    .section-title-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 72px;
+    }
+    .section-title-char {
+      font-family: var(--font-serif);
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .section-title-sub {
+      font-size: 16px;
+      color: var(--ink-light);
+      letter-spacing: 0.15em;
+    }
+    @media (max-width: 768px) {
+      .section-title-group { margin-bottom: 48px; }
+      .section-title-char { font-size: 40px; }
+    }
+
+    /* ================================================ */
+    /*  HERO                                            */
+    /* ================================================ */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100vh;
+      padding: 120px 40px 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 远山剪影 */
+    .hero-mountains {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 260px;
+      pointer-events: none;
+    }
+    .hero-mountains svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 墨晕光斑 */
+    .hero-ink-wash {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(28,28,28,0.025) 0%, transparent 70%);
+      pointer-events: none;
+      animation: ink-breathe 8s ease-in-out infinite;
+    }
+    @keyframes ink-breathe {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    /* 竖排装饰文字 */
+    .hero-verse {
+      position: absolute;
+      left: 8%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-serif);
+      font-size: 15px;
+      color: var(--ink-faint);
+      writing-mode: vertical-rl;
+      letter-spacing: 0.3em;
+      line-height: 2;
+    }
+    @media (max-width: 900px) {
+      .hero-verse { display: none; }
+    }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.3em;
+      color: var(--cinnabar);
+      margin-bottom: 48px;
+      padding: 5px 18px;
+      border: 1px solid rgba(196, 77, 52, 0.3);
+      border-radius: 100px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(72px, 11vw, 140px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 0.9;
+      color: var(--ink);
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(17px, 2vw, 22px);
+      color: var(--ink-light);
+      max-width: 500px;
+      line-height: 1.9;
+      font-weight: 400;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 48px;
+    }
+
+    .hero-seal {
+      position: relative;
+      z-index: 1;
+      opacity: 0.85;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink-faint);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      cursor: pointer;
+      transition: color 0.4s;
+      z-index: 1;
+    }
+    .hero-scroll:hover { color: var(--ink-light); }
+    .hero-scroll-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--ink-faint), transparent);
+    }
+
+    /* ================================================ */
+    /*  CAPABILITIES · 六艺                              */
+    /* ================================================ */
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      background: var(--divider);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .caps-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .caps-grid { grid-template-columns: 1fr; }
+    }
+
+    .cap-card {
+      background: var(--card);
+      padding: 52px 44px;
+      cursor: default;
+      transition: background 0.5s var(--ease-ink), box-shadow 0.5s var(--ease-ink);
+      position: relative;
+      overflow: hidden;
+    }
+    .cap-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(350px circle at var(--mx, 50%) var(--my, 50%), var(--ink-wash), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.6s;
+    }
+    .cap-card:hover {
+      background: var(--card-hover);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+    }
+    .cap-card:hover::before { opacity: 1; }
+
+    .cap-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cap-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+
+    .cap-icon {
+      width: 44px;
+      height: 44px;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+
+    .cap-card-mark {
+      width: 20px;
+      height: 20px;
+      color: var(--cinnabar);
+      opacity: 0.5;
+    }
+
+    .cap-card h3 {
+      font-family: var(--font-serif);
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .cap-card p {
+      font-size: 14.5px;
+      color: var(--ink-light);
+      line-height: 1.85;
+    }
+
+    /* ================================================ */
+    /*  HIGHLIGHTS · 三绝                                */
+    /* ================================================ */
+    .highlights {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .highlight-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 44px 0;
+      gap: 64px;
+      border-bottom: 1px solid var(--divider);
+      transition: padding 0.4s var(--ease-ink);
+    }
+    .highlight-item:first-child { padding-top: 0; }
+    .highlight-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .highlight-item:hover { padding-left: 8px; }
+
+    @media (max-width: 768px) {
+      .highlight-item {
+        flex-direction: column;
+        gap: 16px;
+        padding: 32px 0;
+      }
+      .highlight-item:hover { padding-left: 0; }
+    }
+
+    .highlight-label {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--cinnabar);
+      min-width: 130px;
+      letter-spacing: 0.05em;
+      padding-top: 2px;
+    }
+
+    .highlight-content h3 {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .highlight-content p {
+      font-size: 15px;
+      color: var(--ink-light);
+      max-width: 560px;
+      line-height: 1.85;
+    }
+
+    /* 青瓷标记 — 用于第二个 highlight */
+    .highlight-label.celadon { color: var(--celadon); }
+
+    /* ================================================ */
+    /*  FLOW · 三步                                      */
+    /* ================================================ */
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .flow-steps {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+    }
+
+    .flow-step {
+      text-align: center;
+      padding: 0 32px;
+      position: relative;
+    }
+
+    /* 横线连接（桌面端） */
+    @media (min-width: 769px) {
+      .flow-step::before {
+        content: '';
+        position: absolute;
+        top: 44px;
+        left: 50%;
+        width: 100%;
+        height: 1px;
+        background: var(--divider);
+        z-index: 0;
+      }
+      .flow-step:first-child::before { left: 50%; width: 50%; }
+      .flow-step:last-child::before { width: 50%; }
+    }
+
+    .flow-numeral {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1.5px solid var(--cinnabar);
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cinnabar);
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+      transition: background 0.4s, color 0.4s;
+    }
+    .flow-step:hover .flow-numeral {
+      background: var(--cinnabar);
+      color: #fff;
+    }
+
+    .flow-step h3 {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 12px;
+    }
+
+    .flow-step p {
+      font-size: 14.5px;
+      color: var(--ink-light);
+      line-height: 1.85;
+    }
+
+    /* ================================================ */
+    /*  FOOTER                                          */
+    /* ================================================ */
+    .footer {
+      text-align: center;
+      padding: 100px 40px;
+      border-top: 1px solid var(--divider);
+    }
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    .footer-line {
+      width: 60px;
+    }
+    .footer-tagline {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+    }
+    .footer-note {
+      font-size: 13px;
+      color: var(--ink-faint);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== Tweaks Panel ===== */
+    .tweaks-toggle {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      font-size: 18px;
+      transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .tweaks-toggle:hover {
+      border-color: var(--cinnabar);
+      color: var(--cinnabar);
+    }
+    .tweaks-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      z-index: 100;
+      min-width: 220px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      display: none;
+    }
+    .tweaks-panel.open { display: block; }
+    .tweaks-panel h4 {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+    .tweak-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .tweak-row:last-child { margin-bottom: 0; }
+    .tweak-row label {
+      font-size: 13px;
+      color: var(--ink-light);
+    }
+    .tweak-row select {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ==================== HERO ==================== -->
+    <section class="hero">
+
+      <!-- 背景光晕 -->
+      <div class="hero-ink-wash"></div>
+
+      <!-- 竖排诗句 -->
+      <div class="hero-verse fade-up" style="transition-delay: 0.6s">
+        静观万象 · 墨韵天成
+      </div>
+
+      <!-- 远山 -->
+      <div class="hero-mountains">
+        <svg viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 远山第三层 -->
+          <path d="M0 260 L0 80 Q120 60 240 75 Q400 40 520 65 Q680 30 800 60 Q920 25 1040 58 Q1160 45 1280 62 Q1380 50 1440 55 L1440 260 Z"
+            fill="rgba(28,28,28,0.025)" />
+          <!-- 远山第二层 -->
+          <path d="M0 260 L0 110 Q180 85 320 100 Q500 65 640 90 Q780 55 900 80 Q1020 60 1140 85 Q1260 70 1380 88 Q1420 82 1440 85 L1440 260 Z"
+            fill="rgba(28,28,28,0.05)" />
+          <!-- 远山第一层 -->
+          <path d="M0 260 L0 155 Q220 125 380 140 Q550 105 700 130 Q840 110 960 135 Q1080 115 1200 140 Q1320 125 1440 135 L1440 260 Z"
+            fill="rgba(28,28,28,0.09)" />
+        </svg>
+      </div>
+
+      <div class="hero-tag fade-up" style="transition-delay: 0.1s">AI · 助手</div>
+
+      <h1 class="hero-title fade-up" style="transition-delay: 0.25s">Claude</h1>
+
+      <p class="hero-subtitle fade-up" style="transition-delay: 0.4s">
+        为思考者打造的 AI 伙伴<br />
+        写代码 · 创内容 · 解难题 · 做设计
+      </p>
+
+      <!-- 朱砂印章 -->
+      <div class="hero-seal fade-up" style="transition-delay: 0.55s">
+        <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="46" height="46" rx="3" fill="none" stroke="#c44d34" stroke-width="2.5" />
+          <path d="M26 18 L26 34 M20 24 L32 24" stroke="#c44d34" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="26" cy="26" r="3" fill="#c44d34" opacity="0.6" />
+        </svg>
+      </div>
+
+      <div class="hero-scroll" @click="scrollToSection('caps')">
+        <span>探 寻</span>
+        <div class="hero-scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- ==================== CAPABILITIES · 能 ==================== -->
+    <section id="caps" class="section">
+      <div class="section-title-group fade-up">
+        <span class="section-title-char">能</span>
+        <div>
+          <div class="section-title-sub">CAPABILITIES</div>
+          <div class="section-title-sub" style="margin-top:2px;">不只是对话 — 是真正的协作</div>
+        </div>
+        <svg class="seal seal-sm" viewBox="0 0 32 32" style="margin-left:auto;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="28" height="28" rx="2" fill="none" stroke="#c44d34" stroke-width="1.8" />
+          <circle cx="16" cy="16" r="4" fill="#c44d34" opacity="0.7" />
+          <line x1="16" y1="2" x2="16" y2="10" stroke="#c44d34" stroke-width="1.2" />
+          <line x1="16" y1="22" x2="16" y2="30" stroke="#c44d34" stroke-width="1.2" />
+        </svg>
+      </div>
+
+      <div
+        class="caps-grid fade-up"
+        @mousemove="onGridMouseMove"
+        @mouseleave="onGridMouseLeave"
+      >
+        <div
+          v-for="(cap, i) in capabilities"
+          :key="i"
+          class="cap-card"
+          :style="{ '--mx': mouseX + '%', '--my': mouseY + '%' }"
+        >
+          <div class="cap-card-inner">
+            <div class="cap-card-top">
+              <div class="cap-icon" v-html="cap.icon"></div>
+              <!-- 微型朱砂印记 -->
+              <svg class="cap-card-mark" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="18" height="18" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                <rect x="5" y="5" width="10" height="10" rx="1" fill="currentColor" opacity="0.3" />
+              </svg>
+            </div>
+            <h3>{{ cap.title }}</h3>
+            <p>{{ cap.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HIGHLIGHTS · 异 ==================== -->
+    <section class="section">
+      <div class="section-title-group fade-up">
+        <span class="section-title-char">异</span>
+        <div>
+          <div class="section-title-sub">DIFFERENTIATORS</div>
+          <div class="section-title-sub" style="margin-top:2px;">深度而非广度，质量而非数量</div>
+        </div>
+      </div>
+
+      <div class="highlights fade-up">
+        <div
+          v-for="(h, i) in highlights"
+          :key="i"
+          class="highlight-item"
+          :style="{ transitionDelay: (i * 0.1) + 's' }"
+        >
+          <div
+            class="highlight-label"
+            :class="{ celadon: i === 1 }"
+          >{{ h.label }}</div>
+          <div class="highlight-content">
+            <h3>{{ h.title }}</h3>
+            <p>{{ h.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FLOW · 道 ==================== -->
+    <section class="section">
+      <div class="section-title-group fade-up">
+        <span class="section-title-char">道</span>
+        <div>
+          <div class="section-title-sub">HOW IT WORKS</div>
+          <div class="section-title-sub" style="margin-top:2px;">三步，简单而深邃</div>
+        </div>
+      </div>
+
+      <div class="flow-steps fade-up">
+        <div
+          v-for="(step, i) in steps"
+          :key="i"
+          class="flow-step"
+        >
+          <div class="flow-numeral">{{ step.numeral }}</div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.desc }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="bamboo-line footer-line"></div>
+        <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="32" height="32" rx="2" fill="none" stroke="#c44d34" stroke-width="2" opacity="0.6" />
+          <path d="M12 18 L24 18 M18 12 L18 24" stroke="#c44d34" stroke-width="1.2" stroke-linecap="round" opacity="0.5" />
+        </svg>
+        <p class="footer-tagline">以水墨之意，行智能之实</p>
+        <p class="footer-note">Claude · 为创造而生</p>
+      </div>
+    </footer>
+
+    <!-- ==================== TWEAKS PANEL ==================== -->
+    <div
+      class="tweaks-toggle"
+      @click="tweaksOpen = !tweaksOpen"
+      title="Tweaks"
+    >墨</div>
+    <div class="tweaks-panel" :class="{ open: tweaksOpen }">
+      <h4>Tweaks</h4>
+      <div class="tweak-row">
+        <label>纸张色调</label>
+        <select v-model="paperTone" @change="onPaperToneChange">
+          <option value="warm">暖宣纸</option>
+          <option value="cool">冷宣纸</option>
+          <option value="pure">纯白</option>
+        </select>
+      </div>
+      <div class="tweak-row">
+        <label>印章颜色</label>
+        <select v-model="sealColor" @change="onSealChange">
+          <option value="cinnabar">朱砂红</option>
+          <option value="celadon">青瓷绿</option>
+          <option value="ink">墨色</option>
+        </select>
+      </div>
+      <div class="tweak-row">
+        <label>动效节奏</label>
+        <select v-model="motionSpeed" @change="onMotionChange">
+          <option value="slow">从容</option>
+          <option value="normal">正常</option>
+          <option value="fast">明快</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== Vue 3 ===== -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script>
+    const { createApp, ref, onMounted, onUnmounted, nextTick } = Vue;
+
+    createApp({
+      setup() {
+        // ===== Mouse position for ink-wash card effect =====
+        const mouseX = ref(50);
+        const mouseY = ref(50);
+        let gridEl = null;
+
+        const onGridMouseMove = (e) => {
+          if (!gridEl) return;
+          const rect = gridEl.getBoundingClientRect();
+          mouseX.value = ((e.clientX - rect.left) / rect.width) * 100;
+          mouseY.value = ((e.clientY - rect.top) / rect.height) * 100;
+        };
+        const onGridMouseLeave = () => {
+          mouseX.value = 50;
+          mouseY.value = 50;
+        };
+
+        // ===== Scroll =====
+        const scrollToSection = (id) => {
+          const el = document.getElementById(id);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // ===== Intersection Observer =====
+        let observer = null;
+        const setupObserver = () => {
+          observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+              });
+            },
+            { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+          );
+          document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+        };
+
+        onMounted(() => {
+          nextTick(() => {
+            gridEl = document.querySelector('.caps-grid');
+            setTimeout(() => {
+              document.querySelectorAll('.fade-up').forEach((el) => {
+                if (el.getBoundingClientRect().top < window.innerHeight) {
+                  el.classList.add('visible');
+                }
+              });
+              setupObserver();
+            }, 120);
+          });
+        });
+        onUnmounted(() => { if (observer) observer.disconnect(); });
+
+        // ===== Tweaks =====
+        const tweaksOpen = ref(false);
+        const paperTone = ref('warm');
+        const sealColor = ref('cinnabar');
+        const motionSpeed = ref('slow');
+
+        const paperMap = { warm: '#f7f3eb', cool: '#f3f4f7', pure: '#fafaf9' };
+        const sealMap = { cinnabar: '#c44d34', celadon: '#8aaa9a', ink: '#1c1c1c' };
+        const motionMap = { slow: '0.9s', normal: '0.5s', fast: '0.25s' };
+
+        const onPaperToneChange = () => {
+          document.documentElement.style.setProperty('--paper', paperMap[paperTone.value]);
+        };
+        const onSealChange = () => {
+          document.documentElement.style.setProperty('--cinnabar', sealMap[sealColor.value]);
+          document.documentElement.style.setProperty('--cinnabar-dark',
+            sealColor.value === 'cinnabar' ? '#a03a25' :
+            sealColor.value === 'celadon' ? '#6b8f7e' : '#3a3a3a'
+          );
+          document.documentElement.style.setProperty('--cinnabar-glow',
+            sealColor.value === 'cinnabar' ? 'rgba(196,77,52,0.10)' :
+            sealColor.value === 'celadon' ? 'rgba(138,170,154,0.10)' : 'rgba(28,28,28,0.06)'
+          );
+        };
+        const onMotionChange = () => {
+          document.querySelectorAll('.fade-up').forEach((el) => {
+            el.style.transitionDuration = motionMap[motionSpeed.value];
+          });
+        };
+
+        // ===== Data =====
+        const capabilities = [
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><path d="M14 18l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 30h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+            title: '代码协作',
+            desc: '从架构设计到 Bug 修复，理解你的代码库，写出风格一致的代码，如同一位安静的结对搭档。',
+          },
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><path d="M14 14h16v7H14z" stroke="currentColor" stroke-width="1.5"/><path d="M14 21h10v9H14z" stroke="currentColor" stroke-width="1.5"/><path d="M24 24h6v6h-6z" stroke="currentColor" stroke-width="1.5"/></svg>`,
+            title: '内容创作',
+            desc: '撰写文章、润色文案、翻译语言，让文字更具力量与温度。',
+          },
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><circle cx="16" cy="16" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="28" cy="16" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="30" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="28" cy="30" r="3.5" stroke="currentColor" stroke-width="1.5"/></svg>`,
+            title: '数据分析',
+            desc: '处理 CSV、JSON 和表格数据，自动生成洞察报告与可视化图表。',
+          },
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><circle cx="22" cy="16" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M12 34c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+            title: '设计工程',
+            desc: '从设计系统到交互原型，帮你把创意变成精美的前端页面。',
+          },
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><circle cx="22" cy="22" r="11" stroke="currentColor" stroke-width="1.5"/><circle cx="22" cy="22" r="4" stroke="currentColor" stroke-width="1.5"/></svg>`,
+            title: '知识研究',
+            desc: '深度搜索、多源验证、结构化整理，化信息为洞察，化繁复为简明。',
+          },
+          {
+            icon: `<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="38" height="38" rx="3" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><path d="M22 10v24M10 22h24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="15" y="15" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`,
+            title: '自动化',
+            desc: '脚本编写、CI/CD 配置、工作流优化 — 让重复之事，悄然自行。',
+          },
+        ];
+
+        const highlights = [
+          {
+            label: '长上下文',
+            title: '一次理解整个项目',
+            desc: '支持超长上下文窗口，可以同时阅读整个代码库或数百页文档，全局了然于胸。',
+          },
+          {
+            label: '多模态',
+            title: '看得见，读得懂',
+            desc: '支持图片、PDF、图表等多种格式输入，从视觉信息中提取关键洞察。',
+          },
+          {
+            label: '工具生态',
+            title: '连接你的工作流',
+            desc: '集成终端、文件系统、浏览器和 API，直接在真实环境中执行任务。',
+          },
+        ];
+
+        const steps = [
+          { numeral: '壹', title: '描述需求', desc: '用自然语言告诉 Claude 你想做什么 — 越是具体，越是精准。' },
+          { numeral: '贰', title: '深度思考', desc: 'Claude 会自主规划步骤、查阅文件、搜索信息，给出完整方案。' },
+          { numeral: '叁', title: '交付成果', desc: '获得可直接使用的代码、文档或分析结果 — 不是建议，是产出。' },
+        ];
+
+        return {
+          mouseX, mouseY,
+          onGridMouseMove, onGridMouseLeave,
+          scrollToSection,
+          capabilities, highlights, steps,
+          tweaksOpen,
+          paperTone, sealColor, motionSpeed,
+          onPaperToneChange, onSealChange, onMotionChange,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
